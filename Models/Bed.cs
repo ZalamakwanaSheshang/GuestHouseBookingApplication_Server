@@ -1,6 +1,8 @@
-﻿namespace GuestHouseBookingApplication_Server.Models
+﻿using GuestHouseBookingApplication_Server.Models.Base;
+
+namespace GuestHouseBookingApplication_Server.Models
 {
-    public class Bed
+    public class Bed: AuditableEntity
     {
         public int BedId { get; set; } // Bed_ID
         public int RoomId { get; set; } // FK
@@ -8,13 +10,7 @@
         public string BedName { get; set; } = null!;
         public string? BedDescription { get; set; }
 
-        // Audit Columns
-        public int? CreatedBy { get; set; }
-        public DateTime? CreatedDate { get; set; }
-        public int? ModifiedBy { get; set; }
-        public DateTime? ModifiedDate { get; set; }
-        public string ActiveStatus { get; set; } = "Active";
-
+        
         // Navigation
         public Room? Room { get; set; }
     }

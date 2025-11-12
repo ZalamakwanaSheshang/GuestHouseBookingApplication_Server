@@ -79,6 +79,8 @@ builder.Services.AddCors(options =>
 // config binding
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 
+builder.Services.AddHttpContextAccessor();
+
 // DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
@@ -146,8 +148,7 @@ builder
 
 
 //--------------------------------------------------------------------------------
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<AuditInterceptor>();
+
 //--------------------------------------------------------------------------------
 
 

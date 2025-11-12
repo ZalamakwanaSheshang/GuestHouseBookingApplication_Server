@@ -4,6 +4,7 @@ using GuestHouseBookingApplication_Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GuestHouseBookingApplication_Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251111112602_SeperatedAuditColumns")]
+    partial class SeperatedAuditColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -105,15 +108,9 @@ namespace GuestHouseBookingApplication_Server.Migrations
                         .HasColumnType("nvarchar(20)")
                         .HasColumnName("Active_Status");
 
-                    b.Property<string>("AdminRemarks")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("BedId")
                         .HasColumnType("int")
                         .HasColumnName("Bed_ID");
-
-                    b.Property<string>("BookingReason")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("BookingStatus")
                         .IsRequired()

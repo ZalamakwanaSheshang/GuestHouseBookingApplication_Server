@@ -1,20 +1,19 @@
-﻿namespace GuestHouseBookingApplication_Server.Models
+﻿using GuestHouseBookingApplication_Server.Models.Base;
+
+namespace GuestHouseBookingApplication_Server.Models
 {
-    public class Booking
+    public class Booking: AuditableEntity
     {
         public int BookingId { get; set; } // Booking_ID
         public int UserId { get; set; } // FK
         public int BedId { get; set; } // FK
         public DateTime CheckInDate { get; set; }
         public DateTime CheckOutDate { get; set; }
-        public string BookingStatus { get; set; } = "Booked";
+        public string BookingStatus { get; set; } = "Pending"; // Pending, Approved, Rejected, Cancelled
+        public string? BookingReason { get; set; } // entered by user
+        public string? AdminRemarks { get; set; } // entered by admin
 
-        // Audit Columns
-        public int? CreatedBy { get; set; }
-        public DateTime? CreatedDate { get; set; }
-        public int? ModifiedBy { get; set; }
-        public DateTime? ModifiedDate { get; set; }
-        public string ActiveStatus { get; set; } = "Active";
+
 
         // Navigation
         public User? User { get; set; }

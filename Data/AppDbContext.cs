@@ -1,24 +1,21 @@
-﻿using GuestHouseBookingApplication_Server.Models;
+﻿using System.Security.Claims;
+using GuestHouseBookingApplication_Server.Models;
+using GuestHouseBookingApplication_Server.Models.Base;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace GuestHouseBookingApplication_Server.Data
 {
     public class AppDbContext : DbContext
     {
-        private readonly AuditInterceptor _auditInterceptor;
+        //public AppDbContext(DbContextOptions<AppDbContext> options)
+        //    : base(options) { }
 
-        public AppDbContext(
-            DbContextOptions<AppDbContext> options,
-            AuditInterceptor auditInterceptor
-        )
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAccessor httpContextAccessor)
             : base(options)
         {
-            _auditInterceptor = auditInterceptor;
-        }
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.AddInterceptors(_auditInterceptor);
-            //Console.WriteLine(" AuditInterceptor triggered. Entries: " );
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public DbSet<User> Users { get; set; } = null!;
@@ -26,7 +23,6 @@ namespace GuestHouseBookingApplication_Server.Data
         public DbSet<Room> Rooms { get; set; } = null!;
         public DbSet<Bed> Beds { get; set; } = null!;
         public DbSet<Booking> Bookings { get; set; } = null!;
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -70,8 +66,11 @@ namespace GuestHouseBookingApplication_Server.Data
                 entity.Property(u => u.Role).HasColumnName("Role").HasMaxLength(20);
                 entity.Property(u => u.CreatedDate).HasColumnName("Created_Date");
                 entity.Property(u => u.CreatedBy).HasColumnName("Created_By");
-                entity.Property(u => u.ModificationDate).HasColumnName("Modification_Date");
+                entity.Property(u => u.ModifiedDate).HasColumnName("Modification_Date");
                 entity.Property(u => u.ModifiedBy).HasColumnName("Modified_By");
+                entity.Property(g => g.DeletedBy).HasColumnName("Deleted_By");
+                entity.Property(g => g.DeletedDate).HasColumnName("Deleted_Date");
+
                 entity
                     .Property(u => u.ActiveStatus)
                     .HasColumnName("Active_Status")
@@ -105,8 +104,11 @@ namespace GuestHouseBookingApplication_Server.Data
 
                 entity.Property(g => g.CreatedDate).HasColumnName("Created_Date");
                 entity.Property(g => g.CreatedBy).HasColumnName("Created_By");
-                entity.Property(g => g.ModificationDate).HasColumnName("Modification_Date");
+                entity.Property(g => g.ModifiedDate).HasColumnName("Modification_Date");
                 entity.Property(g => g.ModifiedBy).HasColumnName("Modified_By");
+                entity.Property(g => g.DeletedBy).HasColumnName("Deleted_By");
+                entity.Property(g => g.DeletedDate).HasColumnName("Deleted_Date");
+
                 entity
                     .Property(g => g.ActiveStatus)
                     .HasColumnName("Active_Status")
@@ -157,6 +159,9 @@ namespace GuestHouseBookingApplication_Server.Data
                 entity.Property(r => r.CreatedDate).HasColumnName("Created_Date");
                 entity.Property(r => r.ModifiedBy).HasColumnName("Modified_By");
                 entity.Property(r => r.ModifiedDate).HasColumnName("Modification_Date");
+                entity.Property(g => g.DeletedBy).HasColumnName("Deleted_By");
+                entity.Property(g => g.DeletedDate).HasColumnName("Deleted_Date");
+
                 entity
                     .Property(r => r.ActiveStatus)
                     .HasColumnName("Active_Status")
@@ -196,6 +201,9 @@ namespace GuestHouseBookingApplication_Server.Data
                 entity.Property(b => b.CreatedDate).HasColumnName("Created_Date");
                 entity.Property(b => b.ModifiedBy).HasColumnName("Modified_By");
                 entity.Property(b => b.ModifiedDate).HasColumnName("Modification_Date");
+                entity.Property(g => g.DeletedBy).HasColumnName("Deleted_By");
+                entity.Property(g => g.DeletedDate).HasColumnName("Deleted_Date");
+
                 entity
                     .Property(b => b.ActiveStatus)
                     .HasColumnName("Active_Status")
@@ -231,6 +239,9 @@ namespace GuestHouseBookingApplication_Server.Data
                 entity.Property(bk => bk.CreatedDate).HasColumnName("Created_Date");
                 entity.Property(bk => bk.ModifiedBy).HasColumnName("Modified_By");
                 entity.Property(bk => bk.ModifiedDate).HasColumnName("Modification_Date");
+                entity.Property(g => g.DeletedBy).HasColumnName("Deleted_By");
+                entity.Property(g => g.DeletedDate).HasColumnName("Deleted_Date");
+
                 entity
                     .Property(bk => bk.ActiveStatus)
                     .HasColumnName("Active_Status")
@@ -252,5 +263,49 @@ namespace GuestHouseBookingApplication_Server.Data
 
             // Configure other entities later (Audit).
         }
+        //----------------------------------------------------------------------------------------
+
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var userId = GetCurrentUserId();
+
+            var entries = ChangeTracker.Entries<IAuditableEntity>();
+
+            foreach (var entry in entries)
+            {
+                switch (entry.State)
+                {
+                    case EntityState.Added:
+                        entry.Entity.CreatedDate = DateTime.UtcNow;
+                        entry.Entity.CreatedBy = userId;
+                        entry.Entity.ActiveStatus ??= "Active";
+                        break;
+
+                    case EntityState.Modified:
+                        entry.Entity.ModifiedDate = DateTime.UtcNow;
+                        entry.Entity.ModifiedBy = userId;
+                        break;
+
+                    case EntityState.Deleted:
+                        // Perform soft delete
+                        entry.Entity.DeletedDate = DateTime.UtcNow;
+                        entry.Entity.DeletedBy = userId;
+                        entry.State = EntityState.Modified;
+                        entry.Entity.ActiveStatus = "Inactive";
+                        break;
+                }
+            }
+
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
+        private int? GetCurrentUserId()
+        {
+            var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst("userId")?.Value;
+            if (int.TryParse(userIdClaim, out int userId))
+                return userId;
+            return null;
+        }
+
     }
 }

@@ -1,6 +1,7 @@
-﻿using System.Linq.Expressions;
-using GuestHouseBookingApplication_Server.Data;
+﻿using GuestHouseBookingApplication_Server.Data;
+using GuestHouseBookingApplication_Server.Models.Base;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace GuestHouseBookingApplication_Server.Repositories
 {
@@ -28,5 +29,18 @@ namespace GuestHouseBookingApplication_Server.Repositories
         public void Remove(T entity) => _dbSet.Remove(entity);
 
         public void Update(T entity) => _dbSet.Update(entity);
+
+        public void SoftDelete(T entity)
+        {
+            if (entity is IAuditableEntity auditable)
+            {
+                auditable.ActiveStatus = "Inactive";
+                auditable.DeletedDate = DateTime.UtcNow;
+                // userId will still be filled by DbContext automatically
+            }
+
+            _dbSet.Update(entity); // Mark entity as modified instead of deleted
+        }
+
     }
 }

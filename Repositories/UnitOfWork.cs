@@ -13,6 +13,19 @@ namespace GuestHouseBookingApplication_Server.Repositories
         // Guest House Table
         private IRepository<GuestHouse>? _guestHouses;
         public IRepository<GuestHouse> GuestHouses => _guestHouses ??= new GenericRepository<GuestHouse>(_context);
+        
+        // Rooms House Table
+
+        private IRepository<Room>? _rooms;
+        public IRepository<Room> Rooms => _rooms ??= new GenericRepository<Room>(_context);
+
+        // Beds House Table
+        private IRepository<Bed>? _beds;
+        public IRepository<Bed> Beds => _beds ??= new GenericRepository<Bed>(_context);
+        
+        // Bookings House Table
+        private IRepository<Booking>? _bookings;
+        public IRepository<Booking> Bookings => _bookings ??= new GenericRepository<Booking>(_context);
 
 
         public UnitOfWork(AppDbContext context)

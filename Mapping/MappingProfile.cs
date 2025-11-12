@@ -8,24 +8,26 @@ namespace GuestHouseBookingApplication_Server.Mapping
     {
         public MappingProfile()
         {
-            // GuestHouse mappings
-            //CreateMap<GuestHouseDto, GuestHouse>()
-            //    .ForMember(dest => dest.GuestHouseId, opt => opt.Ignore());
-
             // GuestHouse mapping
             CreateMap<GuestHouseDto, GuestHouse>()
                 .ForMember(dest => dest.GuestHouseId, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
-                .ForMember(dest => dest.ModifiedBy, opt => opt.Ignore())
-                .ForMember(dest => dest.ModificationDate, opt => opt.Ignore())
                 .ReverseMap();
 
-            //CreateMap<GuestHouseDto, GuestHouse>().ReverseMap();
-            // Add future mappings here
-            //CreateMap<RoomDto, Room>().ReverseMap();
-            //CreateMap<BedDto, Bed>().ReverseMap();
-            //CreateMap<BookingDto, Booking>().ReverseMap();
+            // Room mapping
+            CreateMap<RoomDto, Room>()
+                .ForMember(dest => dest.RoomId, opt => opt.Ignore())
+                .ReverseMap();
+
+            // Bed mapping
+            CreateMap<BedDto, Bed>()
+                .ForMember(dest => dest.BedId, opt => opt.Ignore())
+                .ReverseMap();
+
+            // Booking mapping
+            CreateMap<BookingDto, Booking>()
+                .ForMember(dest => dest.BookingId, opt => opt.Ignore())
+                .ReverseMap();
+
         }
     }
 }

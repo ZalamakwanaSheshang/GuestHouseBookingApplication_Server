@@ -11,5 +11,6 @@ namespace GuestHouseBookingApplication_Server.Repositories
         Task AddAsync(T entity);
         void Update(T entity);
         void Remove(T entity);
+        void SoftDelete(T entity);
     }
 }

@@ -6,9 +6,10 @@ namespace GuestHouseBookingApplication_Server.Repositories
     {
         IRepository<User> Users { get; }
         IRepository<GuestHouse> GuestHouses { get; }
-        //IRepository<Room> Rooms { get; }
-        //IRepository<Bed> Beds { get; }
-        //IRepository<Booking> Bookings { get; }
+        IRepository<Room> Rooms { get; }
+        IRepository<Bed> Beds { get; }
+        IRepository<Booking> Bookings { get; }
+
         Task<int> CommitAsync();
     }
 }

@@ -79,6 +79,19 @@ namespace GuestHouseBookingApplication_Server.Controllers
         }
 
         // Delete a guest house
+        //[HttpDelete("{id}")]
+        //public async Task<IActionResult> Delete(int id)
+        //{
+        //    var entity = await _uow.GuestHouses.GetByIdAsync(id);
+        //    if (entity == null)
+        //        return NotFound($"Guest house with ID {id} not found.");
+
+        //    _uow.GuestHouses.Remove(entity);
+        //    await _uow.CommitAsync();
+
+        //    return Ok(new { message = "Guest house deleted successfully" });
+        //}
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -86,10 +99,11 @@ namespace GuestHouseBookingApplication_Server.Controllers
             if (entity == null)
                 return NotFound($"Guest house with ID {id} not found.");
 
-            _uow.GuestHouses.Remove(entity);
+            _uow.GuestHouses.SoftDelete(entity);
             await _uow.CommitAsync();
 
             return Ok(new { message = "Guest house deleted successfully" });
         }
+
     }
 }
